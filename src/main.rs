@@ -5,8 +5,11 @@ mod parser;
 
 use ast::structs::*;
 use compiler::compile::*;
+use parser::parser::*;
 
 fn main() {
+
+    /*
     let a = Mathematical::Literal(1.0);
     let b = Mathematical::Literal(3.0);
     let c = Mathematical::Literal(2.0);
@@ -19,5 +22,12 @@ fn main() {
 
     println!("{}", transpile(string));
     // println!("{}", String::from_utf8(wasm).unwrap());
+    */
+
+    let program = parser();
+
+    for s in program.body {
+        println!("{:?}", s);
+    }
 
 }

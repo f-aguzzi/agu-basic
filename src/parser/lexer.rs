@@ -1,5 +1,6 @@
 use std::str::Lines;
 
+#[derive(Clone, Debug)]
 pub enum Tokens {
     // literals:
     LITERAL,
@@ -27,14 +28,21 @@ pub enum Tokens {
     LET,
 }
 
+#[derive(Clone, Debug)]
 pub struct Token {
-    tpe: Tokens,
-    text: String,
+    pub tpe: Tokens,
+    pub text: String,
+}
+
+#[derive(Clone, Debug)]
+pub struct Line {
+    pub tokens: Vec<Token>,
+    pub line: u16
 }
 
 
 
-pub fn lexer(code: String) -> Vec<Vec<Token>> {
+pub fn lexer(code: String) -> Vec<Line> {
     // Split lines, remove empty lines
     let lines = code.lines();
     let mut lines_vector: Vec<String> = Vec::new();
@@ -45,9 +53,9 @@ pub fn lexer(code: String) -> Vec<Vec<Token>> {
     }
 
     // Storage vector for tokenized lines
-    let mut tokenized_lines: Vec<Vec<Token>> = Vec::new();
+    let mut tokenized_lines: Vec<Line> = Vec::new();
 
-    for line in lines_vector {
+    for (i, line) in lines_vector.iter().enumerate() {
 
         // Temporary vector for current line tokens
         let mut tokenized_vec: Vec<Token> = Vec::new();
@@ -75,6 +83,7 @@ pub fn lexer(code: String) -> Vec<Vec<Token>> {
                 "LET" => Tokens::LET,
                 _=> Tokens::LITERAL
             };
+            println!("{:?}", tpe);
             let text: String = token.to_owned();
             tokenized_vec.push(
                 Token {
@@ -84,7 +93,9 @@ pub fn lexer(code: String) -> Vec<Vec<Token>> {
             )
         }
 
-        tokenized_lines.push(tokenized_vec);
+        tokenized_lines.push(
+            Line { tokens: tokenized_vec, line: i as u16 }
+        );
 
     }
 

@@ -6,7 +6,7 @@
  * 
 **/
 
-
+#[derive(Debug)]
 pub enum Mathematical {
     Literal(f64),
     Add(Box<Mathematical>, Box<Mathematical>),
@@ -15,6 +15,7 @@ pub enum Mathematical {
     Div(Box<Mathematical>, Box<Mathematical>),
 }
 
+#[derive(Debug)]
 pub enum Logical {
     Literal(i32),
     Eq(Box<Mathematical>, Box<Mathematical>),
@@ -27,40 +28,52 @@ pub enum Logical {
     Or(Box<Logical>, Box<Logical>),
 }
 
+#[derive(Debug)]
 pub enum Statement {
-    Let,
+    Let(Variable),
     Goto(GotoStatement),
     If(IfStatement),
     For(ForStatement),
     While(WhileStatement),
 }
 
+#[derive(Debug)]
 pub struct IfStatement {
-    Condition: Logical,
-    Body: Program,
-    Line: u16
+    condition: Logical,
+    body: Program,
+    line: u16
 }
 
+#[derive(Debug)]
 pub struct GotoStatement {
-    Destination: u16,
-    Body: Program,
-    Line: u16
+    destination: u16,
+    body: Program,
+    line: u16
 }
 
+#[derive(Debug)]
 pub struct ForStatement {
-    RangeLeft: Mathematical,
-    RangeRight: Mathematical,
-    Body: Program,
-    Line: u16
+    range_left: Mathematical,
+    range_right: Mathematical,
+    body: Program,
+    line: u16
 }
 
+#[derive(Debug)]
 pub struct WhileStatement {
-    Condition: Logical,
-    Body: Program,
-    Line: u16
+    condition: Logical,
+    body: Program,
+    line: u16
 }
 
+#[derive(Debug)]
+pub struct Variable {
+    pub name: String,
+    pub value: f64
+}
+
+#[derive(Debug)]
 pub struct Program {
-    Body: Vec<Statement>,
-    Variables: Vec<f64>
+    pub body: Vec<Statement>,
+    pub variables: Vec<Variable>
 }
