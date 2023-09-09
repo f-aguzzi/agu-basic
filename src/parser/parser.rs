@@ -1,4 +1,4 @@
-use crate::ast::structs::{Program, IfStatement, Logical, Variable, Statement};
+use crate::ast::structs::*;
 use super::lexer::{lexer, Token, Tokens, Line};
 
 pub fn parser() -> Program {
@@ -14,28 +14,57 @@ pub fn parseLogical(expr: Line) {
     }
 }
 
-pub fn parse_mathematical(expr: &mut Line) {
+pub fn parse_mathematical(expr: &mut Line) -> Mathematical {
 
+    match expr.tokens.len() {
+        1 => {
+            let x = expr.tokens.get(0).unwrap();
+            match x.text.parse::<f64>().is_err() {
+                true => { return Mathematical::Var(x.text.clone()) }
+                false => { return Mathematical::Literal(x.text.parse::<f64>().unwrap()) }
+            } 
+        }
+        2 => { panic!("Line {}: incomplete math expression", expr.line) }
+        _=> {
+            let mut first_expression = expr.clone();
+            first_expression.tokens = vec![first_expression.tokens.get(0).unwrap().clone()];
+
+            let mut line_remainder = expr.clone();
+            line_remainder.tokens.remove(0);
+            line_remainder.tokens.remove(1);
+
+            match expr.tokens.get(1).unwrap().text.as_str() {
+                "+" => { return Mathematical::from_add(parse_mathematical(&mut first_expression), parse_mathematical(&mut line_remainder)) }
+                "-" => { return Mathematical::from_sub(parse_mathematical(&mut first_expression), parse_mathematical(&mut line_remainder)) }
+                "*" => { return Mathematical::from_mul(parse_mathematical(&mut first_expression), parse_mathematical(&mut line_remainder)) }
+                "/" => { return Mathematical::from_div(parse_mathematical(&mut first_expression), parse_mathematical(&mut line_remainder)) }
+                _=> panic!("Line {}: unrecognized operator", expr.line)
+            }
+         }
+    }
 }
 
-pub fn parse_let(expr: &mut Line) -> Variable {
+pub fn parse_let(expr: &mut Line) -> LetStatement {
 
-    if expr.tokens.len() != 3 {
-        panic!("Line {}: Syntax Error: incomplete LET statement", expr.line);
+    match expr.tokens.len() {
+        0 | 1 | 2 => panic!("Line {}: Syntax Error: incomplete LET statement", expr.line),
+        3 => {
+            if expr.tokens.get(1).unwrap().text != String::from("=") {
+                panic!("Line {}: Sytnax Error: invalid LET statement", expr.line);
+            }
+            let name = expr.tokens.get(0).expect("Variable parsing error").text.clone();
+            let value = expr.tokens
+                .get(2)
+                .expect("Variable parsing error")
+                .text.parse::<f64>()
+                .unwrap();
+        }
+        _=> {
+            
+        }
     }
 
-    if expr.tokens.get(1).unwrap().text != String::from("=") {
-        panic!("Line {}: Sytnax Error: invalid LET statement", expr.line);
-    }
-
-    let name = expr.tokens.get(0).expect("Variable parsing error").text.clone();
-    let value = expr.tokens
-        .get(2)
-        .expect("Variable parsing error")
-        .text.parse::<f64>()
-        .unwrap();
-
-    Variable { name: name, value: value }
+    LetStatement { name: String::from("Peppino"), expression: Mathematical::Literal(1.00) }
 }
 
 pub fn parse(code: Vec<Line>) -> Program {

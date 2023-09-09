@@ -9,10 +9,41 @@
 #[derive(Debug)]
 pub enum Mathematical {
     Literal(f64),
+    Var(String),
     Add(Box<Mathematical>, Box<Mathematical>),
     Sub(Box<Mathematical>, Box<Mathematical>),
     Mul(Box<Mathematical>, Box<Mathematical>),
     Div(Box<Mathematical>, Box<Mathematical>),
+}
+
+impl Mathematical {
+    pub fn from_add(expr1: Mathematical, expr2: Mathematical) -> Mathematical {
+        Mathematical::Add(
+            Box::new(expr1),
+            Box::new(expr2)
+        )
+    }
+
+    pub fn from_sub(expr1: Mathematical, expr2: Mathematical) -> Mathematical {
+        Mathematical::Sub(
+            Box::new(expr1),
+            Box::new(expr2)
+        )
+    }
+
+    pub fn from_mul(expr1: Mathematical, expr2: Mathematical) -> Mathematical {
+        Mathematical::Mul(
+            Box::new(expr1),
+            Box::new(expr2)
+        )
+    }
+
+    pub fn from_div(expr1: Mathematical, expr2: Mathematical) -> Mathematical {
+        Mathematical::Div(
+            Box::new(expr1),
+            Box::new(expr2)
+        )
+    }
 }
 
 #[derive(Debug)]
@@ -30,7 +61,7 @@ pub enum Logical {
 
 #[derive(Debug)]
 pub enum Statement {
-    Let(Variable),
+    Let(LetStatement),
     Goto(GotoStatement),
     If(IfStatement),
     For(ForStatement),
@@ -70,6 +101,12 @@ pub struct WhileStatement {
 pub struct Variable {
     pub name: String,
     pub value: f64
+}
+
+#[derive(Debug)]
+pub struct LetStatement {
+    pub name: String,
+    pub expression: Mathematical
 }
 
 #[derive(Debug)]
