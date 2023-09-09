@@ -12,6 +12,7 @@ pub fn math2text(math: Box<Mathematical>) -> String {
         Mathematical::Sub(a, b) => { sub(&math2text(a), &math2text(b)) }
         Mathematical::Mul(a, b) => { mul(&math2text(a), &math2text(b)) }
         Mathematical::Div(a, b) => { div(&math2text(a), &math2text(b)) }
+        _=> { String::from("SISTEMARE") }
     };
 
     text
@@ -28,6 +29,7 @@ pub fn log2text(log: Box<Logical>) -> String {
         Logical::Le(a, b) => { le(&math2text(a), &math2text(b)) }
         Logical::And(a, b) => { and(&log2text(a), &log2text(b)) }
         Logical::Or(a, b) => { or(&log2text(a), &log2text(b)) }
+        _=> { String::from("SISTEMARE") }
     };
 
     text

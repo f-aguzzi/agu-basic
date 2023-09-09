@@ -1,6 +1,6 @@
 use std::str::Lines;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Tokens {
     // literals:
     LITERAL,
@@ -15,20 +15,21 @@ pub enum Tokens {
     EQUAL,
     GREATEREQUAL,
     LESSEREQUAL,
+    AND,
+    OR,
     // booleans:
     TRUE,
     FALSE,
     // control flow:
     IF,
     ENDIF,
-    GOTO,
     FOR,
     WHILE,
     // let statement:
     LET,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Token {
     pub tpe: Tokens,
     pub text: String,
@@ -75,15 +76,16 @@ pub fn lexer(code: String) -> Vec<Line> {
                 "<=" => Tokens::LESSEREQUAL,
                 "TRUE" => Tokens::TRUE,
                 "FALSE" => Tokens::FALSE,
+                "AND" => Tokens::AND,
+                "OR" => Tokens::OR,
                 "IF" => Tokens::IF,
                 "ENDIF" => Tokens::ENDIF,
-                "GOTO" => Tokens::GOTO,
                 "FOR" => Tokens::FOR,
                 "WHILE" => Tokens::WHILE,
                 "LET" => Tokens::LET,
                 _=> Tokens::LITERAL
             };
-            println!("{:?}", tpe);
+
             let text: String = token.to_owned();
             tokenized_vec.push(
                 Token {
@@ -94,10 +96,37 @@ pub fn lexer(code: String) -> Vec<Line> {
         }
 
         tokenized_lines.push(
-            Line { tokens: tokenized_vec, line: i as u16 }
+            Line { tokens: tokenized_vec, line: (i+1) as u16 }
         );
 
     }
 
     tokenized_lines
+}
+
+
+#[test]
+fn test_lexer() {
+    let test_code = String::from("LET X = 11\nFOR 1 X");
+    let lexed_vec = lexer(test_code);
+
+    // First line, first token
+    assert_eq!(lexed_vec.get(0).unwrap().tokens.get(0).unwrap().clone(), Token { tpe: Tokens::LET, text: String::from("LET") });
+    // First line, second token
+    assert_eq!(lexed_vec.get(0).unwrap().tokens.get(1).unwrap().clone(), Token { tpe: Tokens::LITERAL, text: String::from("X") });
+    // First line, third token
+    assert_eq!(lexed_vec.get(0).unwrap().tokens.get(2).unwrap().clone(), Token { tpe: Tokens::EQUAL, text: String::from("=") });
+    // First line, fourth token
+    assert_eq!(lexed_vec.get(0).unwrap().tokens.get(3).unwrap().clone(), Token { tpe: Tokens::LITERAL, text: String::from("11") });
+
+    // Second line, first token
+    assert_eq!(lexed_vec.get(1).unwrap().tokens.get(0).unwrap().clone(), Token { tpe: Tokens::FOR, text: String::from("FOR") });
+    // Second line, second token
+    assert_eq!(lexed_vec.get(1).unwrap().tokens.get(1).unwrap().clone(), Token { tpe: Tokens::LITERAL, text: String::from("1") });
+    // Second line, third token
+    assert_eq!(lexed_vec.get(1).unwrap().tokens.get(2).unwrap().clone(), Token { tpe: Tokens::LITERAL, text: String::from("X") });
+
+    // Line numbers
+    assert_eq!(lexed_vec.get(0).unwrap().line, 1);
+    assert_eq!(lexed_vec.get(1).unwrap().line, 2);
 }

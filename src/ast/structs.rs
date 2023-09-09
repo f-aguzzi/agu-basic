@@ -6,7 +6,7 @@
  * 
 **/
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Mathematical {
     Literal(f64),
     Var(String),
@@ -46,9 +46,10 @@ impl Mathematical {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Logical {
     Literal(i32),
+    Var(String),
     Eq(Box<Mathematical>, Box<Mathematical>),
     Ne(Box<Mathematical>, Box<Mathematical>),
     Gt(Box<Mathematical>, Box<Mathematical>),
@@ -59,30 +60,81 @@ pub enum Logical {
     Or(Box<Logical>, Box<Logical>),
 }
 
-#[derive(Debug)]
+impl Logical {
+    pub fn from_eq(expr1: Mathematical, expr2: Mathematical) -> Logical {
+        Logical::Eq(
+            Box::new(expr1),
+            Box::new(expr2)
+        )
+    }
+
+    pub fn from_ne(expr1: Mathematical, expr2: Mathematical) -> Logical {
+        Logical::Ne(
+            Box::new(expr1),
+            Box::new(expr2)
+        )
+    }
+
+    pub fn from_gt(expr1: Mathematical, expr2: Mathematical) -> Logical {
+        Logical::Gt(
+            Box::new(expr1),
+            Box::new(expr2)
+        )
+    }
+
+    pub fn from_ls(expr1: Mathematical, expr2: Mathematical) -> Logical {
+        Logical::Ls(
+            Box::new(expr1),
+            Box::new(expr2)
+        )
+    }
+
+    pub fn from_ge(expr1: Mathematical, expr2: Mathematical) -> Logical {
+        Logical::Ge(
+            Box::new(expr1),
+            Box::new(expr2)
+        )
+    }
+
+    pub fn from_le(expr1: Mathematical, expr2: Mathematical) -> Logical {
+        Logical::Le(
+            Box::new(expr1),
+            Box::new(expr2)
+        )
+    }
+
+    pub fn from_and(expr1: Logical, expr2: Logical) -> Logical {
+        Logical::And(
+            Box::new(expr1),
+            Box::new(expr2)
+        )
+    }
+
+    pub fn from_or(expr1: Logical, expr2: Logical) -> Logical {
+        Logical::Or(
+            Box::new(expr1),
+            Box::new(expr2)
+        )
+    }
+}
+
+#[derive(Debug, PartialEq)]
 pub enum Statement {
     Let(LetStatement),
-    Goto(GotoStatement),
     If(IfStatement),
     For(ForStatement),
     While(WhileStatement),
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct IfStatement {
     condition: Logical,
     body: Program,
     line: u16
 }
 
-#[derive(Debug)]
-pub struct GotoStatement {
-    destination: u16,
-    body: Program,
-    line: u16
-}
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct ForStatement {
     range_left: Mathematical,
     range_right: Mathematical,
@@ -90,26 +142,26 @@ pub struct ForStatement {
     line: u16
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct WhileStatement {
     condition: Logical,
     body: Program,
     line: u16
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Variable {
     pub name: String,
     pub value: f64
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct LetStatement {
     pub name: String,
     pub expression: Mathematical
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Program {
     pub body: Vec<Statement>,
     pub variables: Vec<Variable>
