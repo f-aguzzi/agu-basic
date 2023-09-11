@@ -1,13 +1,14 @@
 use crate::ast::structs::*;
 use super::lexer::{lexer, Token, Tokens, Line};
 
+
 pub fn parser() -> Program {
     let code: Vec<Line> = lexer("LET X = 1".to_string());
     
     parse(code)
 }
 
-pub fn parse_logical(expr: &mut Line) -> Logical {
+pub fn parse_logical(expr: &Line) -> Logical {
 
     let is_logical = |i: &Token| -> bool {
         match i.tpe {
@@ -118,8 +119,20 @@ pub fn parse_let(expr: &mut Line) -> LetStatement {
     }
 }
 
-pub fn parse_if(code: Vec<Line>) {
+pub fn parse_if(line: &Line, code: &Vec<Line>, program: &mut Program) -> Program {
 
+    let if_body: Vec<Line>;
+
+    if_body = Vec::new();
+
+    IfStatement {
+        condition: parse_logical(line),
+        body: parse(if_body)
+    };
+
+    println!("parse_if: THIS METHOD IS UNIMPLEMENTED");
+    
+    program.clone()
 }
 
 pub fn parse(code: Vec<Line>) -> Program {
@@ -131,20 +144,20 @@ pub fn parse(code: Vec<Line>) -> Program {
         
         let first_token = line.tokens.remove(0);
 
-        let statement: Statement;
-
         println!("Primo token: {:?}", first_token);
 
         match first_token.tpe {
-            Tokens::IF => { statement = Statement::Let(parse_let(line)); },
-            Tokens::ENDIF => { statement = Statement::Let(parse_let(line)); },
-            Tokens::FOR => { statement = Statement::Let(parse_let(line)); },
-            Tokens::WHILE => { statement = Statement::Let(parse_let(line)); },
-            Tokens::LET => { statement = Statement::Let(parse_let(line)); },
+            Tokens::IF => { 
+                let mut prog = parse_if(&line, &code, &mut program);
+                program.concat(&mut prog);
+            },
+            Tokens::ENDIF => {  },
+            Tokens::FOR => {  },
+            Tokens::WHILE => {  },
+            Tokens::LET => { program.body.push(Statement::Let(parse_let(line))); },
             _=> { panic!("Line {}: Syntax Error", i); }
         }
 
-        program.body.push(statement);
     }
 
     program
@@ -167,7 +180,7 @@ fn parse_let_test() {
             Mathematical::from_add(Mathematical::Literal(2.0), Mathematical::Literal(14.0)))
     };
 
-    assert_eq!(parsed_code.body.get(0).unwrap().clone(), &Statement::Let(test_object));
+    assert_eq!(parsed_code.body.get(0).unwrap().clone(), Statement::Let(test_object));
 }
 
 #[test]

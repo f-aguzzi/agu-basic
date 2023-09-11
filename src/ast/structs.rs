@@ -6,7 +6,7 @@
  * 
 **/
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Mathematical {
     Literal(f64),
     Var(String),
@@ -46,7 +46,7 @@ impl Mathematical {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Logical {
     Literal(i32),
     Var(String),
@@ -118,7 +118,7 @@ impl Logical {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Statement {
     Let(LetStatement),
     If(IfStatement),
@@ -126,43 +126,56 @@ pub enum Statement {
     While(WhileStatement),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct IfStatement {
-    condition: Logical,
-    body: Program,
-    line: u16
+    pub condition: Logical,
+    pub body: Program
 }
 
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ForStatement {
     range_left: Mathematical,
     range_right: Mathematical,
-    body: Program,
-    line: u16
+    body: Program
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct WhileStatement {
     condition: Logical,
-    body: Program,
-    line: u16
+    body: Program
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Variable {
     pub name: String,
     pub value: f64
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct LetStatement {
     pub name: String,
     pub expression: Mathematical
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Program {
     pub body: Vec<Statement>,
     pub variables: Vec<Variable>
+}
+
+impl Program {
+
+    pub fn split_at(&self, i: usize) -> Program {
+        Program { body: self.body.split_at(i).1.to_vec(), variables: self.variables.clone() }
+    }
+
+    pub fn push_statement(&mut self, stat: Statement) {
+        self.body.push(stat);
+    }
+
+    pub fn concat(&mut self, prog: &mut Program) {
+        self.body.append(&mut prog.body);
+        self.variables.append(&mut prog.variables);
+    }
 }
